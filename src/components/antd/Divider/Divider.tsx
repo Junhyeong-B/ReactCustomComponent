@@ -58,7 +58,7 @@ const Divider = ({
       )}
       style={style}
     >
-      <span className={textCss}>{children}</span>
+      <span className={textCss(!!children)}>{children}</span>
     </div>
   );
 };
@@ -102,8 +102,8 @@ const rootCss = ({
   }
 `;
 
-const textCss = css`
-  padding: 0 10px;
+const textCss = (hasChildren: boolean) => css`
+  padding: 0 ${hasChildren ? '10px' : ''};
   text-align: center;
   white-space: nowrap;
   font-size: 16px;
