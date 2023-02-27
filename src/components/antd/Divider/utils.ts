@@ -14,5 +14,7 @@ export const getDividerWidth = (orientation: Orientation, margin?: string) => {
 };
 
 export const getMargin = (orientationMargin?: string | number) => {
-  return isNumber(orientationMargin) ? `${orientationMargin}px` : orientationMargin;
+  return isNumber(orientationMargin)
+    ? `${orientationMargin}px`
+    : orientationMargin;
 };

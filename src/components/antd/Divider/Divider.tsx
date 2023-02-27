@@ -4,7 +4,6 @@ import { css, cx } from '@emotion/css';
 import { Orientation } from './types';
 import { Direction } from '@/types/layout';
 import { getDividerWidth, getMargin } from './utils';
-import { has } from 'immer/dist/internal';
 
 interface Props {
   className?: string;
@@ -50,7 +49,7 @@ const Divider = ({
       style={style}
     >
       {hasChildren && isHorizontal && (
-        <span className={textCss(isHorizontal)}>{children}</span>
+        <span className={textCss}>{children}</span>
       )}
     </div>
   );
@@ -111,7 +110,7 @@ const verticalLineCss = css`
   border-inline-start: 1px solid;
 `;
 
-const textCss = (hasChildren: boolean) => css`
+const textCss = css`
   padding: 0 10px;
   text-align: center;
   white-space: nowrap;

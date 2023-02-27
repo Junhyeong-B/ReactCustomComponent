@@ -38,7 +38,9 @@ const Space = ({
   split,
   wrap,
 }: React.PropsWithChildren<Props>) => {
-  const gapSize = Array.isArray(size) ? getPxfromSizeArray(size) : getPxFromSize(size);
+  const gapSize = Array.isArray(size)
+    ? getPxfromSizeArray(size)
+    : getPxFromSize(size);
   const customChildren = !split
     ? children
     : React.Children.map(children, (child, i) =>
@@ -51,7 +53,13 @@ const Space = ({
           </React.Fragment>
         )
       );
-  return <div className={cx(rootCss(direction, wrap), gap(gapSize), alignItems(align))}>{customChildren}</div>;
+  return (
+    <div
+      className={cx(rootCss(direction, wrap), gap(gapSize), alignItems(align))}
+    >
+      {customChildren}
+    </div>
+  );
 };
 
 export default Space;

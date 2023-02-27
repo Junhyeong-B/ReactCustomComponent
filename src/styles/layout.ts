@@ -7,5 +7,7 @@ export const gap = (size: string | number) => css`
 `;
 
 export const alignItems = (align: Align) => css`
-  align-items: ${align === 'center' || align === 'baseline' ? align : `flex-${align}`};
+  align-items: ${align === 'center' || align === 'baseline'
+    ? align
+    : `flex-${align}`};
 `;
