@@ -11,8 +11,9 @@
     "module": "esnext",
     "moduleResolution": "node",
     "jsx": "react",
-    "baseUrl": "./",
     "types": ["node", "html-minifier-terser"],
+    "resolveJsonModule": true,
+    "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
     }
