@@ -55,7 +55,7 @@ const useSort = <T>({
     [data, sorter]
   );
 
-  return { onSort, sortedItems };
+  return { onSort, sortedItems, ...sorter };
 };
 
 export default useSort;
