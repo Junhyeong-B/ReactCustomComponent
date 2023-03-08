@@ -13,13 +13,11 @@ interface Props {
   }[];
 }
 
-type DataType = Props['data'][0];
-
 const TableDemo = ({ data }: Props) => {
   const { onSort, sortedItems, sortDir, sortKey } = useSort({ data });
   return (
     <Table>
-      <Table.Header<DataType>
+      <Table.Header
         onSort={onSort}
         sortDir={sortDir}
         sortKey={sortKey}
@@ -31,6 +29,18 @@ const TableDemo = ({ data }: Props) => {
         <Table.Column id="department">Department</Table.Column>
         <Table.Column id="jobTitle">Job Title</Table.Column>
       </Table.Header>
+
+      <Table.Body>
+        {sortedItems.map((item) => (
+          <Table.Row key={item.id}>
+            <Table.Cell>{item.firstName}</Table.Cell>
+            <Table.Cell>{item.lastName}</Table.Cell>
+            <Table.Cell>{item.email}</Table.Cell>
+            <Table.Cell>{item.department}</Table.Cell>
+            <Table.Cell>{item.jobTitle}</Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
     </Table>
   );
 };

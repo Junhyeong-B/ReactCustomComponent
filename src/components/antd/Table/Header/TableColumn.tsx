@@ -4,23 +4,23 @@ import Arrow from '../../common/Arrow/Arrow';
 import { SortingDirection } from '../types';
 
 interface Props<T> {
-  id?: keyof T;
-  onSort?: (sortKey: keyof T) => T[];
-  sortKey?: keyof T;
-  sortDir?: SortingDirection;
-  isSortableHeader?: boolean;
   children: React.ReactElement | string;
   className?: string;
+  id?: keyof T;
+  isSortableHeader?: boolean;
+  onSort?: (sortKey: keyof T) => T[];
+  sortDir?: SortingDirection;
+  sortKey?: keyof T;
 }
 
 const TableColumn = <T,>({
-  id,
-  onSort,
-  sortKey,
-  sortDir,
-  isSortableHeader,
   children,
   className,
+  id,
+  isSortableHeader,
+  onSort,
+  sortDir,
+  sortKey,
 }: Props<T>) => {
   const isArrowVisible =
     isSortableHeader && sortKey === id && sortDir !== 'none';
@@ -30,11 +30,18 @@ const TableColumn = <T,>({
   };
 
   return (
-    <th onClick={onColumnHeaderClick} className={cx(rootCss, className)}>
+    <th
+      onClick={onColumnHeaderClick}
+      className={cx(className, {
+        [rootCss]: isSortableHeader,
+      })}
+    >
       {children}
-      &nbsp;
       {isArrowVisible && (
-        <Arrow direction={sortDir === 'asc' ? 'up' : 'down'} />
+        <>
+          &nbsp;
+          <Arrow direction={sortDir === 'asc' ? 'up' : 'down'} />
+        </>
       )}
     </th>
   );

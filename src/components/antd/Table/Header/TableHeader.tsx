@@ -2,23 +2,27 @@ import React from 'react';
 import { SortingDirection } from '../types';
 
 interface Props<T> {
-  isSortableHeader: boolean;
-  sortKey: keyof T;
-  sortDir: SortingDirection;
-  onSort: (sortKey: keyof T, sortDir?: SortingDirection) => void;
   children: React.ReactNode;
+  className?: string;
+  isSortableHeader: boolean;
+  onSort: (sortKey: keyof T, sortDir?: SortingDirection) => void;
+  rowClassName?: string;
+  sortDir: SortingDirection;
+  sortKey: keyof T;
 }
 
 const TableHeader = <T,>({
-  isSortableHeader,
-  sortKey,
-  sortDir,
   children,
+  className,
+  isSortableHeader,
   onSort,
+  rowClassName,
+  sortDir,
+  sortKey,
 }: Props<T>) => {
   const headerChildrens = isSortableHeader
     ? React.Children.map(children, (child) =>
-        React.cloneElement(child as React.ReactElement, {
+        React.cloneElement(child as React.ReactElement<Props<T>>, {
           onSort,
           isSortableHeader,
           sortKey,
@@ -27,8 +31,8 @@ const TableHeader = <T,>({
       )
     : children;
   return (
-    <thead>
-      <tr>{headerChildrens}</tr>
+    <thead className={className}>
+      <tr className={rowClassName}>{headerChildrens}</tr>
     </thead>
   );
 };
