@@ -28,11 +28,9 @@ const Dots = ({
               [width(24)]: activeIndex === index,
               [opacity(1)]: activeIndex === index,
             })}
+            onClick={onClickHandler.bind(null, index)}
           >
-            <button
-              className={buttonCss}
-              onClick={onClickHandler.bind(null, index)}
-            />
+            <button className={buttonCss} />
           </li>
         ))}
       </ul>
@@ -45,7 +43,7 @@ export default Dots;
 const dotsContainerCss = css`
   position: absolute;
   left: 50%;
-  bottom: 12px;
+  bottom: 8px;
   transform: translate(-50%);
 `;
 
@@ -54,17 +52,20 @@ const dotsUlCss = css`
   justify-content: center;
   list-style: none;
   padding: 0;
-  margin: 0;
-  margin: 12px;
+  margin: 12px 0;
+  width: 100%;
 `;
 
 const dotCss = css`
   width: 16px;
-  height: 11px;
   transition: all 0.3s;
   list-style: none;
-  margin-inline: 4px;
   opacity: 0.75;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
 
   :hover {
     opacity: 0.9;

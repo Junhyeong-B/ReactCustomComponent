@@ -20,41 +20,53 @@ const Carousel = ({
   dotPosition,
   dots,
   easing,
-  effect,
+  effect = 'scrollx',
   afterChange,
   beforeChange,
   children,
 }: React.PropsWithChildren<Props>) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isAnimatied, setIsAnimatied] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
   const containerSize = useResize(containerRef);
   const containerWidth = useMemo(
     () => containerSize.width * React.Children.count(children),
     [containerSize, children]
   );
-
   const transformWidth = useMemo(
     () => -activeIndex * containerSize.width,
     [activeIndex, containerSize]
   );
 
+  const isSlideEffect = effect === 'scrollx';
+
   const onDotClickHandler = useCallback(
     (index: number) => {
+      if (isAnimatied || index === activeIndex) {
+        return;
+      }
+      setIsAnimatied(true);
       beforeChange?.(activeIndex, index);
       setActiveIndex(index);
       afterChange?.(index);
+
+      setTimeout(() => {
+        setIsAnimatied(false);
+      }, 500);
     },
-    [beforeChange, afterChange, activeIndex]
+    [beforeChange, afterChange, activeIndex, isAnimatied]
   );
 
   return (
     <div className={rootCss} ref={containerRef}>
       <div className={slideWrapperCss}>
         <div
-          className={cx(
-            slideContainerCss(transformWidth),
-            widthCss(containerWidth)
-          )}
+          className={cx(slideContainerCss, widthCss(containerWidth), {
+            [slideTranslateCss(transformWidth)]: isSlideEffect,
+            [slideFadeCss(transformWidth)]: !isSlideEffect,
+            [fadeAnimation]: !isSlideEffect && isAnimatied,
+          })}
         >
           {React.Children.map(children, (child) => (
             <div className={cx(slideCss, widthCss(containerSize.width))}>
@@ -84,13 +96,37 @@ const slideWrapperCss = css`
   overflow: hidden;
 `;
 
-const slideContainerCss = (width: number) => css`
+const slideContainerCss = css`
   display: flex;
+`;
+
+const slideTranslateCss = (width: number) => css`
   transition: transform 0.5s ease;
+  transform: translateX(${width}px);
+`;
+
+const fadeAnimation = css`
+  @keyframes fadeAnimation {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  animation: fadeAnimation 0.4s linear;
+`;
+
+const slideFadeCss = (width: number) => css`
+  transition: opacity 0.4s;
   transform: translateX(${width}px);
 `;
 
 const slideCss = css`
   display: block;
   width: 100%;
+  padding: 4px;
 `;
