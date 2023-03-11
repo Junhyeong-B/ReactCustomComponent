@@ -16,7 +16,6 @@ interface Props {
   autoPlay?: boolean;
   dotPosition?: DotPosition;
   dots?: boolean;
-  easing?: string;
   effect?: 'scrollx' | 'fade';
   afterChange?: (currentIndex: number) => void;
   beforeChange?: (from: number, to: number) => void;
@@ -25,8 +24,7 @@ interface Props {
 const Carousel = ({
   autoPlay = false,
   dotPosition = 'bottom',
-  dots,
-  easing,
+  dots = true,
   effect = 'scrollx',
   afterChange,
   beforeChange,
@@ -125,16 +123,18 @@ const Carousel = ({
           ref={sliderContainerRef}
         >
           {React.Children.map(children, (child) => (
-            <div className={cx(widthCss(containerSize.width))}>{child}</div>
+            <div className={widthCss(containerSize.width)}>{child}</div>
           ))}
         </div>
       </div>
-      <Dots
-        activeIndex={activeIndex}
-        onClick={onDotClickHandler}
-        dotPosition={dotPosition}
-        children={children}
-      />
+      {dots && (
+        <Dots
+          activeIndex={activeIndex}
+          onClick={onDotClickHandler}
+          dotPosition={dotPosition}
+          children={children}
+        />
+      )}
     </div>
   );
 };
@@ -170,13 +170,13 @@ const fadeAnimation = css`
       opacity: 1;
     }
     50% {
-      opacity: 0.7;
+      opacity: 0.5;
     }
     100% {
       opacity: 1;
     }
   }
-  animation: fadeAnimation 0.4s linear;
+  animation: fadeAnimation 0.4s ease;
 `;
 
 const slideFadeCss = css`
