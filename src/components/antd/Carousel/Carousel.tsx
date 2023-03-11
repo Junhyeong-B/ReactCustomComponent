@@ -1,7 +1,14 @@
+import useOnMount from '@/hooks/useOnMount';
 import useResize from '@/hooks/useResize';
-import { width as widthCss } from '@/styles/layout';
+import { flexDirection, width as widthCss } from '@/styles/layout';
 import { css, cx } from '@emotion/css';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import Dots from './Dots';
 import { DotPosition } from './types';
 
@@ -16,8 +23,8 @@ interface Props {
 }
 
 const Carousel = ({
-  autoPlay,
-  dotPosition,
+  autoPlay = false,
+  dotPosition = 'bottom',
   dots,
   easing,
   effect = 'scrollx',
@@ -28,56 +35,104 @@ const Carousel = ({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimatied, setIsAnimatied] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const childrenCount = React.Children.count(children);
+
+  const isScrollXEffect = effect === 'scrollx';
+  const isVertical = dotPosition === 'left' || dotPosition === 'right';
 
   const containerSize = useResize(containerRef);
+
   const containerWidth = useMemo(
-    () => containerSize.width * React.Children.count(children),
-    [containerSize, children]
-  );
-  const transformWidth = useMemo(
-    () => -activeIndex * containerSize.width,
-    [activeIndex, containerSize]
+    () =>
+      isVertical ? containerSize.width : containerSize.width * childrenCount,
+    [containerSize, childrenCount, isVertical]
   );
 
-  const isSlideEffect = effect === 'scrollx';
+  const translateSize = useMemo(
+    () =>
+      isVertical
+        ? -activeIndex * (containerSize.height / childrenCount)
+        : -activeIndex * containerSize.width,
+    [activeIndex, containerSize, isVertical, childrenCount]
+  );
+
+  const triggerSlideAnimation = useCallback(() => {
+    setIsAnimatied(true);
+    setTimeout(() => {
+      setIsAnimatied(false);
+    }, 500);
+  }, []);
 
   const onDotClickHandler = useCallback(
     (index: number) => {
       if (isAnimatied || index === activeIndex) {
         return;
       }
-      setIsAnimatied(true);
+      triggerSlideAnimation();
       beforeChange?.(activeIndex, index);
       setActiveIndex(index);
       afterChange?.(index);
-
-      setTimeout(() => {
-        setIsAnimatied(false);
-      }, 500);
     },
-    [beforeChange, afterChange, activeIndex, isAnimatied]
+    [beforeChange, afterChange, activeIndex, isAnimatied, triggerSlideAnimation]
   );
 
+  useOnMount(() => {
+    if (!autoPlay) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => {
+        if (prev === childrenCount - 1) {
+          return 0;
+        } else {
+          return prev + 1;
+        }
+      });
+      triggerSlideAnimation();
+    }, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  });
+
+  const sliderContainerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (
+      !sliderContainerRef.current ||
+      !isVertical ||
+      (sliderContainerRef.current && sliderContainerRef.current.style.height)
+    ) {
+      return;
+    }
+
+    const { height } = sliderContainerRef.current.getClientRects()[0];
+    sliderContainerRef.current.style.height = `${height / childrenCount}px`;
+  }, [sliderContainerRef, isVertical, childrenCount]);
+
   return (
-    <div className={rootCss} ref={containerRef}>
-      <div className={slideWrapperCss}>
+    <div className={rootCss}>
+      <div className={slideWrapperCss} ref={containerRef}>
         <div
           className={cx(slideContainerCss, widthCss(containerWidth), {
-            [slideTranslateCss(transformWidth)]: isSlideEffect,
-            [slideFadeCss(transformWidth)]: !isSlideEffect,
-            [fadeAnimation]: !isSlideEffect && isAnimatied,
+            [slideFadeCss]: !isScrollXEffect,
+            [fadeAnimation]: !isScrollXEffect && isAnimatied,
+            [flexDirection('column')]: isVertical,
+            [slideXCss(translateSize)]: !isVertical,
+            [slideYCss(translateSize)]: isVertical,
           })}
+          ref={sliderContainerRef}
         >
           {React.Children.map(children, (child) => (
-            <div className={cx(slideCss, widthCss(containerSize.width))}>
-              {child}
-            </div>
+            <div className={cx(widthCss(containerSize.width))}>{child}</div>
           ))}
         </div>
       </div>
       <Dots
         activeIndex={activeIndex}
         onClick={onDotClickHandler}
+        dotPosition={dotPosition}
         children={children}
       />
     </div>
@@ -98,11 +153,15 @@ const slideWrapperCss = css`
 
 const slideContainerCss = css`
   display: flex;
+  transition: transform 0.5s ease;
 `;
 
-const slideTranslateCss = (width: number) => css`
-  transition: transform 0.5s ease;
+const slideXCss = (width: number) => css`
   transform: translateX(${width}px);
+`;
+
+const slideYCss = (height: number) => css`
+  transform: translateY(${height}px);
 `;
 
 const fadeAnimation = css`
@@ -120,13 +179,6 @@ const fadeAnimation = css`
   animation: fadeAnimation 0.4s linear;
 `;
 
-const slideFadeCss = (width: number) => css`
+const slideFadeCss = css`
   transition: opacity 0.4s;
-  transform: translateX(${width}px);
-`;
-
-const slideCss = css`
-  display: block;
-  width: 100%;
-  padding: 4px;
 `;

@@ -16,6 +16,16 @@ export const width = (size: string | number) => css`
   width: ${isNumber(size) ? `${size}px` : size};
 `;
 
+export const height = (size: string | number) => css`
+  height: ${isNumber(size) ? `${size}px` : size};
+`;
+
 export const opacity = (opacity: number) => css`
   opacity: ${opacity};
+`;
+
+export const flexDirection = (
+  direction: 'row' | 'row-reverse' | 'column' | 'column-reverse'
+) => css`
+  flex-direction: ${direction};
 `;
