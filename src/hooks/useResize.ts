@@ -1,3 +1,4 @@
+import throttle from '@/utils/throttle';
 import React, { useLayoutEffect, useState } from 'react';
 
 function useResize<T extends HTMLDivElement>(ref: React.RefObject<T>) {
@@ -12,14 +13,16 @@ function useResize<T extends HTMLDivElement>(ref: React.RefObject<T>) {
       return;
     }
 
-    const observer = new ResizeObserver((entries) => {
-      entries.forEach((entry) => {
-        setSize({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height,
+    const observer = new ResizeObserver(
+      throttle((entries) => {
+        entries.forEach((entry) => {
+          setSize({
+            width: entry.contentRect.width,
+            height: entry.contentRect.height,
+          });
         });
-      });
-    });
+      }, 200)
+    );
 
     observer.observe(targetElement);
 
