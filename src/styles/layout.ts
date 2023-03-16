@@ -29,3 +29,11 @@ export const flexDirection = (
 ) => css`
   flex-direction: ${direction};
 `;
+
+export const zIndex = (zIndex: number) => css`
+  z-index: ${zIndex};
+`;
+
+export const flexGrow = (value: number) => css`
+  flex-grow: ${value};
+`;
