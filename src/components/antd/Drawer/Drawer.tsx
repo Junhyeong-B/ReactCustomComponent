@@ -1,10 +1,14 @@
 import { css, cx } from '@emotion/css';
 import React, { useState } from 'react';
-import { width as widthCss, zIndex as zIndexCss } from '@/styles/layout';
+import {
+  flexGrow,
+  width as widthCss,
+  zIndex as zIndexCss,
+} from '@/styles/layout';
 import { backgroundColor } from '@/styles/color';
 import { fadeIn, fadeOut } from '@/styles/animation';
-
-type PlacementType = 'top' | 'right' | 'bottom' | 'left';
+import type { PlacementType } from './types';
+import { fontWeight } from '@/styles/font';
 
 interface Props {
   onClose: () => void;
@@ -13,6 +17,9 @@ interface Props {
   title?: string;
   width?: number;
   zIndex?: number;
+  extra?: React.ReactNode;
+  getContainer?: HTMLElement | false;
+  closable?: boolean;
 }
 
 const Drawer = ({
@@ -23,6 +30,9 @@ const Drawer = ({
   title,
   width = 378,
   zIndex = 1000,
+  extra,
+  getContainer = document.body,
+  closable = true,
 }: React.PropsWithChildren<Props>) => {
   const [isAnimated, setIsAnimated] = useState(false);
   const isVertical = placement === 'left' || placement === 'right';
@@ -40,7 +50,7 @@ const Drawer = ({
   };
 
   return (
-    <div className={cx(rootCss, zIndexCss(zIndex))}>
+    <div className={cx(rootCss(!!getContainer), zIndexCss(zIndex))}>
       {(open || isAnimated) && (
         <div
           className={cx(maskCss, zIndexCss(zIndex), {
@@ -62,12 +72,16 @@ const Drawer = ({
             [leftPositionCss]: placement === 'left',
             [rightPositionCss]: placement === 'right',
             [translateDefaultCss]: open,
+            [drawerBoxShadowCss]: open,
           }
         )}
       >
         <div className={headerCss}>
-          <button onClick={handleClose}>X</button>
-          <div>{title}</div>
+          {closable && <button onClick={handleClose}>X</button>}
+          <div className={cx(fontWeight(600), { [flexGrow(1)]: closable })}>
+            {title}
+          </div>
+          {extra}
         </div>
         <div className={bodyCss}>{children}</div>
       </div>
@@ -77,10 +91,11 @@ const Drawer = ({
 
 export default Drawer;
 
-const rootCss = css`
-  position: fixed;
+const rootCss = (getContainer: boolean) => css`
+  position: ${getContainer ? 'fixed' : 'absolute'};
   inset: 0;
   pointer-events: none;
+  overflow: ${getContainer ? 'initial' : 'hidden'};
 `;
 
 const maskCss = css`
@@ -151,13 +166,17 @@ const drawerSectionCss = css`
   position: absolute;
   background-color: #fff;
   transition: all 0.3s;
+  pointer-events: auto;
+`;
+
+const drawerBoxShadowCss = css`
   box-shadow: -6px 0 16px 0 rgba(0, 0, 0, 0.08),
     -3px 0 6px -4px rgba(0, 0, 0, 0.12), -9px 0 28px 8px rgba(0, 0, 0, 0.05);
-  pointer-events: auto;
 `;
 
 const headerCss = css`
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 12px;
   padding: 16px 24px;

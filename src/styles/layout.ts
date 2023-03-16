@@ -33,3 +33,7 @@ export const flexDirection = (
 export const zIndex = (zIndex: number) => css`
   z-index: ${zIndex};
 `;
+
+export const flexGrow = (value: number) => css`
+  flex-grow: ${value};
+`;
